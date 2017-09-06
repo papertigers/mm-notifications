@@ -32,7 +32,6 @@ func main() {
 		}
 
 		wsClient := client.StartWatcher()
-		wsClient.Listen()
 		for {
 			select {
 			case event := <-wsClient.EventChannel:

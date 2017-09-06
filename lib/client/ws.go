@@ -13,5 +13,6 @@ func (c *Client) StartWatcher() *model.WebSocketClient {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	client.Listen()
 	return client
 }
