@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -17,10 +16,9 @@ func (c *Client) StartWatcher(ctx context.Context) <-chan WebSocketEvent {
 
 	var headers http.Header
 	headers = make(map[string][]string)
-	cookie := fmt.Sprintf("MMAUTHTOKEN=%s; MMUSERID=%s;", c.mmauthtoken, c.mmuuid)
 
 	u := url.URL{Scheme: "wss", Host: c.baseurl, Path: "/api/v4/websocket"}
-	headers.Set("Cookie", cookie)
+	headers.Set("Cookie", c.cookie)
 
 	log.Printf("connecting to %s", u.String())
 

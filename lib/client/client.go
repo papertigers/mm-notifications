@@ -1,36 +1,23 @@
 package client
 
 import (
-	"bytes"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"time"
 
-	//"github.com/gorilla/websocket"
-	"github.com/hashicorp/errwrap"
+	"github.com/mattermost/platform/model"
 )
 
-type loginPayload struct {
-	Login_id string `json:"login_id"`
-	Password string `json:"password"`
-}
-
 type Client struct {
-	client      *http.Client
-	username    string
-	password    string
-	baseurl     string
-	mmuuid      string
-	mmauthtoken string
+	client   *model.User
+	username string
+	password string
+	baseurl  string
+	cookie   string
 }
 
 func New(username, password, url string) *Client {
 	return &Client{
-		client: &http.Client{
-			Timeout: time.Second * 5,
-		},
 		username: username,
 		password: password,
 		baseurl:  url,
@@ -38,44 +25,13 @@ func New(username, password, url string) *Client {
 }
 
 func (c *Client) Login() error {
-	path := fmt.Sprintf("https://%s/api/v4/users/login", c.baseurl)
-	body := &loginPayload{
-		Login_id: c.username,
-		Password: c.password,
-	}
-
-	marshaled, err := json.Marshal(body)
-	if err != nil {
-		return errwrap.Wrapf("Error constructing POST body: {{err}}", err)
-	}
-	reqBody := bytes.NewReader(marshaled)
-
-	req, err := http.NewRequest(http.MethodPost, path, reqBody)
-	if err != nil {
-		return errwrap.Wrapf("Error constructing HTTP request: {{err}}", err)
-	}
-
-	res, err := c.client.Do(req)
-	if err != nil {
-		return errwrap.Wrapf("Error executing HTTP request: {{err}}", err)
-	}
-
-	defer res.Body.Close()
-
+	url := fmt.Sprintf("https://%s", c.baseurl)
+	mmclient := model.NewAPIv4Client(url)
+	user, res := mmclient.Login(c.username, c.password)
 	if res.StatusCode != http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return errwrap.Wrapf("Failed to read request body: {{err}}", err)
-		}
-		return fmt.Errorf("Status code %d, body: %s", res.StatusCode, string(bodyBytes))
+		return errors.New("Failed to login")
 	}
-
-	c.mmuuid = res.Header.Get("token")
-	for _, cookie := range res.Cookies() {
-		if cookie.Name == "MMAUTHTOKEN" {
-			c.mmauthtoken = cookie.Value
-			break
-		}
-	}
+	c.client = user
+	c.cookie = res.Header.Get("Set-Cookie")
 	return nil
 }
