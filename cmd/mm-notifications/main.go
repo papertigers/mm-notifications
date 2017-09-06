@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -32,12 +31,15 @@ func main() {
 			fmt.Println(err)
 		}
 
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-
-		events := client.StartWatcher(ctx)
-		for event := range events {
-			fmt.Printf("%v\n", event)
+		wsClient := client.StartWatcher()
+		wsClient.Listen()
+		for {
+			select {
+			case event := <-wsClient.EventChannel:
+				log.Println(event)
+			case res := <-wsClient.ResponseChannel:
+				log.Println(res)
+			}
 		}
 	}
 

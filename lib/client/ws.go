@@ -1,62 +1,17 @@
 package client
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
+	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 
-	"github.com/gorilla/websocket"
 	"github.com/mattermost/platform/model"
 )
 
-func (c *Client) StartWatcher(ctx context.Context) <-chan model.WebSocketEvent {
-	out := make(chan model.WebSocketEvent)
-
-	var headers http.Header
-	headers = make(map[string][]string)
-
-	u := url.URL{Scheme: "wss", Host: c.baseurl, Path: "/api/v4/websocket"}
-	headers.Set("Cookie", c.cookie)
-
-	log.Printf("connecting to %s", u.String())
-
-	ws, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
+func (c *Client) StartWatcher() *model.WebSocketClient {
+	url := fmt.Sprintf("wss://%s", c.baseurl)
+	client, err := model.NewWebSocketClient4(url, c.client.AuthToken)
 	if err != nil {
-		log.Fatal("dial:", err)
+		log.Fatalln(err)
 	}
-
-	// Process messages
-	go func() {
-		defer ws.Close()
-		defer close(out)
-
-		for {
-			_, message, err := ws.ReadMessage()
-			if err != nil {
-				log.Printf("read: %s\n", err)
-				return
-			}
-			b := bytes.NewBuffer(message)
-			var event model.WebSocketEvent
-			err = json.NewDecoder(b).Decode(&event)
-			if err != nil {
-				log.Printf("decode: %s\n", err)
-				return
-			}
-			out <- event
-		}
-	}()
-	go func() {
-		<-ctx.Done()
-		err := ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-		if err != nil {
-			log.Println("write close:", err)
-			return
-		}
-		log.Println("Closing websocket")
-	}()
-	return out
+	return client
 }
