@@ -9,10 +9,11 @@ import (
 	"net/url"
 
 	"github.com/gorilla/websocket"
+	"github.com/mattermost/platform/model"
 )
 
-func (c *Client) StartWatcher(ctx context.Context) <-chan WebSocketEvent {
-	out := make(chan WebSocketEvent)
+func (c *Client) StartWatcher(ctx context.Context) <-chan model.WebSocketEvent {
+	out := make(chan model.WebSocketEvent)
 
 	var headers http.Header
 	headers = make(map[string][]string)
@@ -39,7 +40,7 @@ func (c *Client) StartWatcher(ctx context.Context) <-chan WebSocketEvent {
 				return
 			}
 			b := bytes.NewBuffer(message)
-			var event WebSocketEvent
+			var event model.WebSocketEvent
 			err = json.NewDecoder(b).Decode(&event)
 			if err != nil {
 				log.Printf("decode: %s\n", err)
