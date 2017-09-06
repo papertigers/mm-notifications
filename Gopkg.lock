@@ -21,12 +21,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/hashicorp/errwrap"
-  packages = ["."]
-  revision = "7554cd9344cec97297fa6649b055a8c98c2a1e55"
-
-[[projects]]
-  branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
   revision = "8f6b1344a92ff8877cf24a5de9177bf7d0a2a187"
@@ -136,6 +130,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "993bf46d432a616515c55fbbfb46e77b043c4550a02298d7d050e7d2ec48c996"
+  inputs-digest = "3cf5bdc4aa2c3f4033218877bf2ef108906a3c671e0f1b9732c29fd70588cddc"
   solver-name = "gps-cdcl"
   solver-version = 1
