@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/deckarep/gosx-notifier"
 	homedir "github.com/mitchellh/go-homedir"
@@ -31,6 +32,8 @@ func main() {
 		user := viper.GetString("username")
 		password := viper.GetString("password")
 		url := viper.GetString("url")
+		highlight := viper.GetString("highlight")
+		highlightSlice := strings.Split(highlight, ",")
 
 		client := client.New(user, password, url)
 		err = client.Login()
@@ -40,6 +43,8 @@ func main() {
 
 		wsClient := client.StartWatcher()
 		for {
+			mentioned := false
+
 			select {
 			case event := <-wsClient.EventChannel:
 				if event == nil {
@@ -48,11 +53,6 @@ func main() {
 				if event.Event == "posted" {
 					var post Post
 					data := event.Data
-
-					if _, ok := data["mentions"].(string); !ok {
-						// No mentions
-						continue
-					}
 
 					channel := data["channel_display_name"].(string)
 					username := data["sender_name"].(string)
@@ -65,6 +65,21 @@ func main() {
 					// Assert string, panic otherwise
 					raw := data["post"].(string)
 					json.Unmarshal([]byte(raw), &post)
+
+					if data["channel_type"] == "D" {
+						mentioned = true
+					} else {
+
+						for _, h := range highlightSlice {
+							if strings.Contains(strings.ToLower(post.Message), strings.ToLower(h)) {
+								mentioned = true
+							}
+						}
+					}
+
+					if !mentioned {
+						continue
+					}
 
 					note := gosxnotifier.NewNotification(post.Message)
 					note.Title = channel
