@@ -8,6 +8,12 @@
   revision = "18d87da5025a6e8bd58dede5ecffe3f62115bc4f"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/deckarep/gosx-notifier"
+  packages = ["."]
+  revision = "61a88900fb062ed8c63828adf4d7b58463b61f78"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
@@ -130,6 +136,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3cf5bdc4aa2c3f4033218877bf2ef108906a3c671e0f1b9732c29fd70588cddc"
+  inputs-digest = "6f32c36cbbc9a2931c568e35ef142ca5e4c6454a9871f7698563e508f6132b6e"
   solver-name = "gps-cdcl"
   solver-version = 1

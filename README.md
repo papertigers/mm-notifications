@@ -1,6 +1,8 @@
 # mm-notifications
 Run a command on Mattermost mention notifications
 
+**POC working, needs massive cleanup and error handling**
+
 ## Usage
 `go get -u  github.com/papertigers/mm-notifications/cmd/mm-notifications`
 
